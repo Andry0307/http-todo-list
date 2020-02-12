@@ -1,5 +1,7 @@
 .App {
-  text-align: center;
+	width: 70%;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 .App-logo {
@@ -35,4 +37,21 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.li_button {
+	float: right;
+	margin-left: 5px;
+}
+
+li{
+	cursor: pointer;
+}
+
+strong{
+	margin-left: 10px;
+}
+
+input{
+	margin-top: 5px;
 }

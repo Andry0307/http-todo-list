@@ -1,24 +1,47 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, {useState,useEffect} from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
+import HttpService from "./services/HttpService";
+import UsersList from "./components/UsersList";
+import UserModalForm from "./components/UserModalForm";
+import Header from "./components/Header";
 
 function App() {
+
+    const [users, setUsers] = useState([]);
+    const [newUser, setNewUser] = useState({
+        name: '',
+        surname: '',
+        email: ''
+    });
+
+
+    useEffect(() => {
+        HttpService.get('').then(resp => setUsers(resp.data));
+    }, []);
+
+    function onChangeUser(changes) {
+        setNewUser({
+            ...newUser,
+            ...changes
+        })
+    }
+    
+    function newUserSave(user) {
+        console.log('new User', user);
+        setUsers([
+            ...users,
+            user
+        ])
+    }
+    
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+        <Header />
+        <UserModalForm onSave={newUserSave}
+                       user={newUser}
+                       onChange={onChangeUser}/>
+        <UsersList users={users}/>
     </div>
   );
 }
