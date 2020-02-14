@@ -1,5 +1,5 @@
 .App {
-	width: 70%;
+	width: 65%;
 	margin-left: auto;
 	margin-right: auto;
 }
@@ -53,5 +53,13 @@ strong{
 }
 
 input{
-	margin-top: 5px;
+	margin-bottom: 10px;
+}
+
+h2{
+	color: white;
+}
+
+ul{
+	margin-top: 10px;
 }

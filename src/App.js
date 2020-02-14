@@ -2,46 +2,86 @@ import React, {useState,useEffect} from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import HttpService from "./services/HttpService";
-import UsersList from "./components/UsersList";
-import UserModalForm from "./components/UserModalForm";
+import TodoList from "./components/TodoList";
+import ListModalForm from "./components/ListModalForm";
 import Header from "./components/Header";
 
 function App() {
 
-    const [users, setUsers] = useState([]);
-    const [newUser, setNewUser] = useState({
-        name: '',
-        surname: '',
-        email: ''
+    const [show, setShow] = useState(false);
+    const [todoList, setTodoList] = useState([]);
+    const [newListItem, setNewListItem] = useState({
+        title: ''
     });
+
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
 
 
     useEffect(() => {
-        HttpService.get('').then(resp => setUsers(resp.data));
+        HttpService.get('').then(resp => setTodoList(resp.data));
     }, []);
 
-    function onChangeUser(changes) {
-        setNewUser({
-            ...newUser,
+    function onChangeListItem(changes) {
+        setNewListItem({
+            ...newListItem,
             ...changes
         })
     }
+
+    function onDeleteListItem(id) {
+        HttpService.delete(id).then(resp => {
+            setTodoList(todoList.filter(item => item.id !== resp.data.id));
+        });
+    }
+
+    function onEditListItem(listItem) {
+        handleShow();
+        setNewListItem(listItem);
+    }
     
-    function newUserSave(user) {
-        console.log('new User', user);
-        setUsers([
-            ...users,
-            user
-        ])
+    function newListSave(listItem) {
+        if(listItem.id){
+            updateList(listItem);
+        }else {
+            createList(listItem)
+        }
+      setNewListItem({title: ''})
+    }
+
+    function updateList(listItem) {
+       HttpService.put(listItem.id, listItem).then( resp =>
+           setTodoList(todoList.map(item =>
+               item.id === resp.data.id ? resp.data : item
+           ))
+       )
+    }
+
+    function createList(listItem) {
+        HttpService.post('', listItem).then(resp =>
+            setTodoList([...todoList, resp.data]));
+    }
+
+    function activationItem(listItem) {
+        listItem.isDone = !listItem.isDone;
+        HttpService.put(listItem.id, listItem).then(resp =>
+            setTodoList(todoList.map(item =>
+                item.id === resp.data.id ? resp.data : item))
+        )
     }
     
   return (
     <div>
-        <Header />
-        <UserModalForm onSave={newUserSave}
-                       user={newUser}
-                       onChange={onChangeUser}/>
-        <UsersList users={users}/>
+        <Header showModal={handleShow}/>
+        <ListModalForm onSave={newListSave}
+                       listItem={newListItem}
+                       onChange={onChangeListItem}
+                       show={show}
+                       closeModal={handleClose}/>
+        <TodoList todoList={todoList}
+                  odDelete={onDeleteListItem}
+                  onEdit={onEditListItem}
+                  onActive={activationItem}/>
     </div>
   );
 }
